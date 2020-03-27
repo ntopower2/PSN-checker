@@ -1,18 +1,40 @@
-import lxml
+#fp = open(input("Enter friendslist filename: "),'r')
 import pandas as pd
-friends = []
-fp = open("friendslist.txt",'r',encoding='latin1')
-lines = fp.readlines()
-for line in lines:
-    pos=line.find("/profile")
-    if pos!=-1:
-        pos += len("/profile/")
-        friends.append(line[pos:pos+line[pos:].find("\"")])
+from sys import exit
+from os import system
 
-url = r'https://cewl.a2hosted.com/lists.php?show=banned_members'
-tables = pd.read_html(url) # Returns list of all tables on page
-cewl_banned = tables[0]['PSN']
-print("Any banned members should appear here : ")
-for friend in friends:
-    if len(cewl_banned[cewl_banned==friend]):
-        print(friend)
+def checkBanned(friends):
+    results = []
+    url = r'https://cewl.a2hosted.com/lists.php?show=banned_members'
+    tables = pd.read_html(url)
+    cewl_banned = tables[0]['PSN']
+    for friend in friends:
+        if len(cewl_banned[cewl_banned==friend]):
+            results.append(friend)
+    return results
+    
+
+def getFriends(username="cnnet",size=250):
+    print("Getting ",username,"'s PSN friends..\n")
+    system("php getFriends.php " + username + " "+str(size)+" > friends_"+username)
+    filename = "friends_"+username
+    fp = open(filename,'r')
+    if fp.readline().endswith("Exiting..\n"):
+        return (filename,-1)
+    fp.close()
+    return (filename,0)
+
+if __name__ == "__main__":
+    username = input("Enter PSN username : ")
+    filename,code = getFriends(username)
+    if code == -1:
+        fp = open(filename,'r')
+        print(fp.readline())
+        exit()  
+    else:
+        friends = []
+        fp = open(filename,'r')
+        for line in fp:
+            friends.append(line.rstrip())
+        print(checkBanned(friends))
+        exit()
