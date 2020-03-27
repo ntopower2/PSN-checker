@@ -30,11 +30,16 @@ if __name__ == "__main__":
     if code == -1:
         fp = open(filename,'r')
         print(fp.readline())
-        exit()  
+    
     else:
         friends = []
         fp = open(filename,'r')
         for line in fp:
             friends.append(line.rstrip())
         print(checkBanned(friends))
-        exit()
+
+    fp.close()
+    system("del "+filename) #windows only
+    exit()
+
+
